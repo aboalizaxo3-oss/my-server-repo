@@ -1,44 +1,37 @@
 # Kawar Copart Cloud Server
 
-سيرفر Express يعرض واجهة كاوار ويجلب HTML العام من رابط Copart محدد في `COPART_SEARCH_URL`.
+سيرفر Express مع تطبيق Electron لسطح المكتب ودعم PWA للآيفون وأجهزة الهاتف.
 
-## تطبيق سطح المكتب Electron
+## استخدامه على iPhone كـ PWA
 
-تمت إضافة دعم تطبيق سطح المكتب. الآن يمكن تشغيل التطبيق كواجهة Desktop باستخدام:
+1. انشر الخدمة على Render باستخدام `render.yaml`.
+2. افتح رابط الخدمة في Safari، ويجب أن يبدأ بـ `https://`.
+3. اضغط زر المشاركة في Safari.
+4. اختر **إضافة إلى الشاشة الرئيسية**.
+5. افتح التطبيق من الأيقونة ليعمل بواجهة مستقلة تشبه التطبيق الأصلي.
+
+يدعم المشروع `manifest.webmanifest` و`sw.js` ووسم Apple الخاص بالتثبيت، ويعمل دون الحاجة إلى Xcode أو حساب Apple Developer عند استخدامه كـ PWA.
+
+## تشغيل Electron
 
 ```bash
 npm install
 npm run desktop
 ```
 
-هذا يبدأ السيرفر الداخلي داخل التطبيق ثم يفتح واجهة الويب داخل نافذة Electron.
-
-## البناء إلى ملف EXE أو AppImage
-
-لتجميع التطبيق إلى ملف_installable:
+## بناء تطبيق سطح المكتب
 
 ```bash
 npm run dist
 ```
 
-- على Windows ستنتج ملف `.exe` عبر NSIS
-- على Linux ستنتج `AppImage`
-- على macOS ستنتج `dmg`
-
 ## حماية الجلب اليدوي
 
-المسار `POST /api/admin/fetch` محمي بمفتاح موجود في متغير البيئة `ADMIN_API_KEY`.
+أضف `ADMIN_API_KEY` في متغيرات Render. لا تضع المفتاح في GitHub. الزر داخل الواجهة يطلب المفتاح ويحفظه مؤقتًا في `sessionStorage`.
 
-## التشغيل المحلي
+## ملاحظات PWA
 
-```bash
-npm install
-cp .env.example .env
-npm run desktop
-```
-
-## ملاحظات
-
-- لا تضع أي مفاتيح أو كلمات مرور داخل GitHub.
-- استخدم Render أو متغيرات البيئة في التشغيل السحابي.
-- بالنسبة لـ `.exe` الحقيقي، تحتاج أن تقوم ببناء الملف على جهاز Windows فعليًا.
+- يجب استخدام HTTPS؛ Render يوفر HTTPS تلقائيًا.
+- لا يمكن لـ PWA تجاوز CAPTCHA أو تسجيل الدخول في Copart.
+- بيانات `/api` لا تُخزّن في Service Worker حتى تبقى النتائج حديثة.
+- أي تغيير كبير على الواجهة يستحسن أن يرفع رقم `CACHE_NAME` في `public/sw.js`.

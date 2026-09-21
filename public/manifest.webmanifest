@@ -1,0 +1,15 @@
+{
+  "name": "كاوار مزادات",
+  "short_name": "كاوار",
+  "description": "تطبيق كاوار لمتابعة مزادات السيارات",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
