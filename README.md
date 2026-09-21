@@ -2,32 +2,43 @@
 
 سيرفر Express يعرض واجهة كاوار ويجلب HTML العام من رابط Copart محدد في `COPART_SEARCH_URL`.
 
-## حماية الجلب اليدوي
+## تطبيق سطح المكتب Electron
 
-المسار `POST /api/admin/fetch` محمي بمفتاح موجود في متغير البيئة `ADMIN_API_KEY`. لا تضع المفتاح داخل GitHub أو داخل الكود. من Render افتح **Environment → Environment Variables** وأضف:
-
-```env
-ADMIN_API_KEY=ضع_مفتاحًا_سريًا_قويًا_هنا
-```
-
-يمكن إرسال المفتاح بإحدى الطريقتين:
+تمت إضافة دعم تطبيق سطح المكتب. الآن يمكن تشغيل التطبيق كواجهة Desktop باستخدام:
 
 ```bash
-curl -X POST https://YOUR-SERVICE.onrender.com/api/admin/fetch -H "x-admin-key: YOUR_SECRET"
-curl -X POST https://YOUR-SERVICE.onrender.com/api/admin/fetch -H "Authorization: Bearer YOUR_SECRET"
+npm install
+npm run desktop
 ```
 
-الواجهة تطلب المفتاح عند الضغط على زر الجلب وتحفظه مؤقتًا في `sessionStorage` فقط.
+هذا يبدأ السيرفر الداخلي داخل التطبيق ثم يفتح واجهة الويب داخل نافذة Electron.
 
-## التشغيل
+## البناء إلى ملف EXE أو AppImage
+
+لتجميع التطبيق إلى ملف_installable:
+
+```bash
+npm run dist
+```
+
+- على Windows ستنتج ملف `.exe` عبر NSIS
+- على Linux ستنتج `AppImage`
+- على macOS ستنتج `dmg`
+
+## حماية الجلب اليدوي
+
+المسار `POST /api/admin/fetch` محمي بمفتاح موجود في متغير البيئة `ADMIN_API_KEY`.
+
+## التشغيل المحلي
 
 ```bash
 npm install
 cp .env.example .env
-# أضف COPART_SEARCH_URL و ADMIN_API_KEY في .env
-npm start
+npm run desktop
 ```
 
-## الأمان
+## ملاحظات
 
-لا تستخدم مفتاحًا قصيرًا أو منشورًا في المحادثات العامة. بما أن المفتاح `123654` ظهر في المحادثة، يُنصح بتغييره إلى قيمة عشوائية طويلة قبل النشر. لا يتجاوز هذا المشروع تسجيل الدخول أو CAPTCHA أو الحظر في Copart.
+- لا تضع أي مفاتيح أو كلمات مرور داخل GitHub.
+- استخدم Render أو متغيرات البيئة في التشغيل السحابي.
+- بالنسبة لـ `.exe` الحقيقي، تحتاج أن تقوم ببناء الملف على جهاز Windows فعليًا.

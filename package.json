@@ -2,10 +2,17 @@
   "name": "my-copart-cloud-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Copart public-listing monitor with Express API",
-  "main": "server.js",
-  "scripts": {"start":"node server.js","dev":"node --watch server.js","check":"node --check server.js"},
-  "engines": {"node": ">=20"},
+  "description": "Copart public-listing monitor with Express API and Electron desktop wrapper",
+  "main": "main.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "concurrently \"npm run start\" \"electron .\"",
+    "desktop": "electron .",
+    "dist": "electron-builder"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "cheerio": "^1.0.0",
     "compression": "^1.7.4",
@@ -16,5 +23,35 @@
     "helmet": "^8.0.0",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "electron": "^32.2.0",
+    "electron-builder": "^25.1.4"
+  },
+  "build": {
+    "appId": "com.kawar.copart.desktop",
+    "productName": "Kawar Auction Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!**/*.md",
+      "!dist/**",
+      "!node_modules/.cache/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    }
   }
 }
