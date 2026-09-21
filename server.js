@@ -12,6 +12,9 @@ const app = express();
 const port = Number(process.env.PORT) || 3000;
 const db = { lots: [], settings: { MIN_YEAR: 2018, SALE_TYPE: 'PURE SALE', TOP_N: 50, MAKES: [], EMAIL_TO: '' }, lastFetch: null, fetchError: null };
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '*').split(',').map(x => x.trim()).filter(Boolean);
+const adminApiKey = process.env.ADMIN_API_KEY;
+
+if (!adminApiKey) console.warn('WARNING: ADMIN_API_KEY is not configured; manual fetch is disabled.');
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
@@ -28,6 +31,12 @@ function applyFilters(lots) {
   const s = db.settings;
   return lots.filter(l => (!s.MIN_YEAR || Number(l.year) >= s.MIN_YEAR) && (!s.MAKES.length || s.MAKES.includes(String(l.make).toUpperCase())) && (s.SALE_TYPE === 'ALL' || !s.SALE_TYPE || String(l.saleType).toUpperCase() === String(s.SALE_TYPE).toUpperCase())).slice(0, Math.max(1, s.TOP_N || 50));
 }
+function requireAdminKey(req, res, next) {
+  if (!adminApiKey) return res.status(503).json({ error: 'Admin API key is not configured' });
+  const suppliedKey = req.get('x-admin-key') || (req.get('authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!suppliedKey || suppliedKey !== adminApiKey) return res.status(401).json({ error: 'Invalid or missing admin API key' });
+  next();
+}
 
 app.get('/health', (req, res) => res.json({ status: 'ok', lots: db.lots.length, lastFetch: db.lastFetch, fetchError: db.fetchError }));
 app.get('/api/lots', (req, res) => res.json({ lots: applyFilters(db.lots), lastFetch: db.lastFetch, error: db.fetchError }));
@@ -37,7 +46,7 @@ app.post('/api/settings', (req, res) => {
   db.settings = { ...db.settings, MIN_YEAR: Number(b.MIN_YEAR) || 0, SALE_TYPE: String(b.SALE_TYPE || 'ALL'), TOP_N: Math.min(500, Math.max(1, Number(b.TOP_N) || 50)), MAKES: Array.isArray(b.MAKES) ? b.MAKES.map(String) : [], EMAIL_TO: String(b.EMAIL_TO || '') };
   res.json({ success: true, settings: publicSettings() });
 });
-app.post('/api/admin/fetch', async (req, res) => { const result = await runFetch(); res.status(result.ok ? 200 : 502).json(result); });
+app.post('/api/admin/fetch', requireAdminKey, async (req, res) => { const result = await runFetch(); res.status(result.ok ? 200 : 502).json(result); });
 app.get('/api/status', (req, res) => res.json({ configured: Boolean(process.env.COPART_SEARCH_URL), lastFetch: db.lastFetch, count: applyFilters(db.lots).length, error: db.fetchError }));
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 

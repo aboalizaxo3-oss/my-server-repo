@@ -1,33 +1,33 @@
 # Kawar Copart Cloud Server
 
-سيرفر Express يعرض واجهة كاوار ويجلب HTML العام من رابط Copart مُحدد في `COPART_SEARCH_URL`، ثم يقدمه عبر `/api/lots`.
+سيرفر Express يعرض واجهة كاوار ويجلب HTML العام من رابط Copart محدد في `COPART_SEARCH_URL`.
 
-## مهم
-هذا الإصدار لا يتجاوز تسجيل الدخول أو CAPTCHA أو الحظر، ولا يجلب صفحات غير مصرح بها. يجب استخدام رابط عام مسموح به والالتزام بشروط Copart. تغيّر بنية Copart قد يتطلب تعديل `copart-fetcher.js`.
+## حماية الجلب اليدوي
+
+المسار `POST /api/admin/fetch` محمي بمفتاح موجود في متغير البيئة `ADMIN_API_KEY`. لا تضع المفتاح داخل GitHub أو داخل الكود. من Render افتح **Environment → Environment Variables** وأضف:
+
+```env
+ADMIN_API_KEY=ضع_مفتاحًا_سريًا_قويًا_هنا
+```
+
+يمكن إرسال المفتاح بإحدى الطريقتين:
+
+```bash
+curl -X POST https://YOUR-SERVICE.onrender.com/api/admin/fetch -H "x-admin-key: YOUR_SECRET"
+curl -X POST https://YOUR-SERVICE.onrender.com/api/admin/fetch -H "Authorization: Bearer YOUR_SECRET"
+```
+
+الواجهة تطلب المفتاح عند الضغط على زر الجلب وتحفظه مؤقتًا في `sessionStorage` فقط.
 
 ## التشغيل
 
 ```bash
 npm install
 cp .env.example .env
-# ضع رابط بحث/قائمة عامة مصرحًا بها في COPART_SEARCH_URL
+# أضف COPART_SEARCH_URL و ADMIN_API_KEY في .env
 npm start
 ```
 
-افتح `http://localhost:3000`.
+## الأمان
 
-## API
-
-- `GET /health`
-- `GET /api/lots`
-- `GET /api/settings`
-- `POST /api/settings`
-- `POST /api/admin/fetch`
-
-## Render
-
-اختر **New → Blueprint** ثم هذا المستودع. أضف قيمة `COPART_SEARCH_URL` في Environment Variables. لا تضع كلمات مرور Gmail أو أي مفاتيح في GitHub. خدمة Render المجانية قد تتوقف عند عدم الاستخدام، والبيانات الحالية في الذاكرة ستُفقد عند إعادة التشغيل؛ للإنتاج أضف PostgreSQL أو Redis.
-
-## التنبيهات والبريد
-
-تم تجهيز متغيرات SMTP في `.env.example` فقط. لم نفعّل إرسال البريد قبل إضافة قاعدة بيانات وتحديد قواعد التنبيه؛ لا تحفظ كلمة مرور Gmail في الواجهة.
+لا تستخدم مفتاحًا قصيرًا أو منشورًا في المحادثات العامة. بما أن المفتاح `123654` ظهر في المحادثة، يُنصح بتغييره إلى قيمة عشوائية طويلة قبل النشر. لا يتجاوز هذا المشروع تسجيل الدخول أو CAPTCHA أو الحظر في Copart.
