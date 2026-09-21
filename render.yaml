@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: kawar-copart-server
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FETCH_INTERVAL_MINUTES
+        value: "15"
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: COPART_SEARCH_URL
+        sync: false
